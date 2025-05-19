@@ -10,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-
+builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityUserAccessor>();
 builder.Services.AddScoped<IdentityRedirectManager>();
@@ -30,6 +30,10 @@ builder.Services.AddIdentityCore<User>()
     .AddSignInManager();
 
 var app = builder.Build();
+
+using var scope = app.Services.CreateScope();
+var seeder = scope.ServiceProvider.GetService<DatabaseSeeder>();
+await seeder!.Seed();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
